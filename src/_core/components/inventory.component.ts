@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from "@angular/core";
+import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {Twodmap} from "../classes/twodmap.component";
 import {InventoryhandlerService} from "../services/inventoryhandler.service";
 
@@ -6,7 +6,7 @@ import {InventoryhandlerService} from "../services/inventoryhandler.service";
     selector: "itemsgrid-component",
     templateUrl: "./inventory.component.html"
 })
-export class InventoryComponent implements OnInit {
+export class InventoryComponent implements OnInit, OnDestroy {
 
     private readonly componentId: number = null;
 
@@ -24,18 +24,22 @@ export class InventoryComponent implements OnInit {
 
     constructor(protected inventoryhandlerService: InventoryhandlerService) {
         this.componentId = this.inventoryhandlerService.register(this);
-        this.inventoryhandlerService.dragStartEmitter.subscribe((value: { componentId: number }) => {
+        this.inventoryhandlerService.dragStartEmitter.subscribe(() => {
             this.dragstart();
         });
-        this.inventoryhandlerService.dragStopEmitter.subscribe((value: { componentId: number }) => {
+        this.inventoryhandlerService.dragStopEmitter.subscribe(() => {
             this.dragstop();
         });
-        this.inventoryhandlerService.dragEnterEmitter.subscribe((value: { componentId: number }) => {
+        this.inventoryhandlerService.dragEnterEmitter.subscribe(() => {
             this.resetHover();
         });
         this.inventoryhandlerService.dropEmitter.subscribe((value: { componentId: number, fromX: number, fromY: number, toX: number, toY: number, collision: boolean }) => {
             this.drop(value.componentId, value.fromX, value.fromY, value.toX, value.toY, value.collision);
         });
+    }
+
+    ngOnDestroy(): void {
+        this.inventoryhandlerService.unregister(this.componentId);
     }
 
     ngOnInit() {
@@ -128,8 +132,9 @@ export class InventoryComponent implements OnInit {
         });
     }
 
+    // noinspection JSUnusedLocalSymbols
     drop(componentId: number, fromX: number, fromY: number, toX: number, toY: number, collision: boolean): void {
-
+        // collision for later
         const dragItem = this.inventoryhandlerService.dragItem;
 
         const from = this.items.has(dragItem.id);

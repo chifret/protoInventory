@@ -19,6 +19,10 @@ export class InventoryhandlerService {
         return this.inc++;
     }
 
+    unregister(componentId: number): void {
+        this.map.delete(componentId);
+    }
+
     dragStart(componentId: number, item: { name: string, id: number, w: number, h: number, img: string, x: number, y: number, div: HTMLDivElement }): void {
         this.draggingComponentId = componentId;
         this.dragItem = item;
